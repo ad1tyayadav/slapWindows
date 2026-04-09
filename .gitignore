@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local secrets (do not commit)
+src-tauri/tauri.key
+src-tauri/.env
