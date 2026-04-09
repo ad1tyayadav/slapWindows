@@ -413,10 +413,10 @@ fn refresh_tray_tooltip(app: &AppHandle<Wry>) {
     let state = app.state::<AppState>();
     let state = state.inner();
     let tooltip = if let Some(error) = state.mic_error.lock().clone() {
-        format!("SlapWindows - mic error: {error}")
+        format!("Slap Windows - mic error: {error}")
     } else {
         let slap_count = state.config.lock().slap_count;
-        format!("SlapWindows - {slap_count} slaps")
+        format!("Slap Windows - {slap_count} slaps")
     };
 
     if let Some(tray) = state.tray.lock().as_ref() {
@@ -620,7 +620,7 @@ fn build_tray(app: &AppHandle<Wry>) -> Result<tauri::tray::TrayIcon<Wry>, tauri:
 
     let mut builder = TrayIconBuilder::with_id("main")
         .menu(&menu)
-        .tooltip("SlapWindows - 0 slaps")
+        .tooltip("Slap Windows - 0 slaps")
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
             MENU_SETTINGS_ID => show_settings_window(app),
@@ -652,7 +652,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(
             tauri_plugin_autostart::Builder::new()
-                .app_name("SlapWindows")
+                .app_name("Slap Windows")
                 .build(),
         )
         .setup(|app| {

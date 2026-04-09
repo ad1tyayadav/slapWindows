@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "slapwindows",
+  "productName": "Slap Windows",
   "version": "0.1.0",
   "identifier": "com.adit7.slapwindows",
   "build": {
@@ -13,11 +13,11 @@
     "windows": [
       {
         "label": "main",
-        "title": "SlapWindows Settings",
+        "title": "Slap Windows",
         "width": 960,
         "height": 720,
-        "visible": false,
-        "skipTaskbar": true,
+        "visible": true,
+        "skipTaskbar": false,
         "decorations": false,
         "resizable": true,
         "center": true
