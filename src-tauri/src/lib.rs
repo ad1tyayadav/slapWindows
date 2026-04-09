@@ -19,6 +19,7 @@ use tauri::{
     AppHandle, Emitter, Manager, RunEvent, Wry,
 };
 use tauri_plugin_autostart::ManagerExt as AutostartExt;
+use tauri_plugin_single_instance as single_instance;
 
 const APP_EVENT_STATE: &str = "slap-state";
 const MENU_SETTINGS_ID: &str = "settings";
@@ -650,6 +651,10 @@ fn build_tray(app: &AppHandle<Wry>) -> Result<tauri::tray::TrayIcon<Wry>, tauri:
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(single_instance::init(|app, _argv, _cwd| {
+            // If the app is already running (often hidden in tray), bring the existing UI forward.
+            show_settings_window(app);
+        }))
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .app_name("Slap Windows")

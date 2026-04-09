@@ -150,29 +150,35 @@ impl AudioController {
             return Err("invalid file name".into());
         }
 
-        let target_path = self.custom_root.join(&sanitized_pack_name).join(&sanitized_name);
-        if !target_path.exists() {
+        let custom_path = self.custom_root.join(&sanitized_pack_name).join(&sanitized_name);
+        let bundled_path = self.bundled_root.join(&sanitized_pack_name).join(&sanitized_name);
+
+        let target_path = if custom_path.exists() {
+            custom_path
+        } else if bundled_path.exists() {
+            bundled_path
+        } else {
             return Err(format!(
-                "custom sound '{}' was not found in pack '{}'",
+                "sound '{}' was not found in pack '{}'",
                 sanitized_name, sanitized_pack_name
             ));
-        }
+        };
 
         fs::remove_file(&target_path).map_err(|error| {
             format!(
-                "failed to remove custom sound '{}': {error}",
+                "failed to remove sound '{}': {error}",
                 target_path.display()
             )
         })?;
 
-        let pack_dir = self.custom_root.join(&sanitized_pack_name);
-        if directory_is_empty(&pack_dir)? {
-            fs::remove_dir(&pack_dir).map_err(|error| {
-                format!(
-                    "failed to remove empty custom pack directory '{}': {error}",
-                    pack_dir.display()
-                )
-            })?;
+        // Clean up empty directories in both roots
+        for root in [&self.custom_root, &self.bundled_root] {
+            let pack_dir = root.join(&sanitized_pack_name);
+            if pack_dir.exists() {
+                if let Ok(true) = directory_is_empty(&pack_dir) {
+                    let _ = fs::remove_dir(&pack_dir);
+                }
+            }
         }
 
         Ok(())

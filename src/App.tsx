@@ -346,8 +346,9 @@ function App() {
     return () => window.clearTimeout(timeout);
   }, [cooldown, ready]);
 
-  const visiblePacks = config.custom_packs;
-  const currentPackIndex = Math.max(0, visiblePacks.findIndex((pack) => pack === config.settings.active_pack));
+  const HIDDEN_PACKS = new Set(["classic", "angry", "custom"]);
+  const visiblePacks = config.sound_packs.filter((p: string) => !HIDDEN_PACKS.has(p));
+  const currentPackIndex = visiblePacks.findIndex((pack) => pack === config.settings.active_pack);
   const activeStatus = config.mic_error ? "INACTIVE" : "ACTIVE";
   const activeStatusColor = config.mic_error ? "#5a8a5a" : "#22ff44";
 
@@ -378,7 +379,9 @@ function App() {
     setBusyKey("pack");
 
     try {
-      const nextIndex = (currentPackIndex + direction + visiblePacks.length) % visiblePacks.length;
+      const nextIndex = currentPackIndex < 0
+        ? (direction > 0 ? 0 : visiblePacks.length - 1)
+        : (currentPackIndex + direction + visiblePacks.length) % visiblePacks.length;
       const nextPack = visiblePacks[nextIndex];
       const next = await invoke<ConfigResponse>("set_sound_pack", { pack: nextPack });
       applyConfig(next);
@@ -717,7 +720,7 @@ function App() {
                 placeItems: "center",
               }}
             >
-              {visiblePacks.length === 0 ? "< NO CUSTOM PACK >" : `< ${displayPackName(config.settings.active_pack)} >`}
+              {visiblePacks.length === 0 ? "[ NO PACKS ]" : `[ ${displayPackName(config.settings.active_pack)} ]`}
             </div>
             <button
               className="pack-arrow"
@@ -883,9 +886,7 @@ function App() {
 
         <section style={sectionStyle}>
           <div style={{ ...labelStyle, marginBottom: 10 }}>[ PACK FILES ]</div>
-          {!config.active_pack_is_custom ? (
-            <div style={{ ...blockStyle, color: "#5a8a5a", fontSize: 12 }}>IMPORT A CUSTOM PACK TO MANAGE FILES HERE</div>
-          ) : config.active_pack_sounds.length === 0 ? (
+          {config.active_pack_sounds.length === 0 ? (
             <div style={{ ...blockStyle, color: "#5a8a5a", fontSize: 12 }}>NO FILES IN THIS PACK</div>
           ) : (
             <div style={{ display: "grid", gap: 6, maxHeight: 180, overflowY: "auto" }}>
@@ -897,7 +898,7 @@ function App() {
                     background: "#0a0f0a",
                     padding: 8,
                     display: "grid",
-                    gridTemplateColumns: config.active_pack_is_custom ? "1fr auto" : "1fr",
+                    gridTemplateColumns: "1fr auto",
                     gap: 8,
                     alignItems: "center",
                   }}
@@ -905,16 +906,14 @@ function App() {
                   <div style={{ color: "#c8ffcc", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={sound}>
                     {sound.toUpperCase()}
                   </div>
-                  {config.active_pack_is_custom ? (
-                    <button
-                      className="terminal-button danger-button"
-                      onClick={() => void removeSound(sound)}
-                      disabled={busyKey === `remove-${sound}`}
-                      style={smallButtonStyle("#ff4444")}
-                    >
-                      [DEL]
-                    </button>
-                  ) : null}
+                  <button
+                    className="terminal-button danger-button"
+                    onClick={() => void removeSound(sound)}
+                    disabled={busyKey === `remove-${sound}`}
+                    style={smallButtonStyle("#ff4444")}
+                  >
+                    [DEL]
+                  </button>
                 </div>
               ))}
             </div>

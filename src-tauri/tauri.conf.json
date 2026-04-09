@@ -18,7 +18,8 @@
         "height": 720,
         "visible": true,
         "skipTaskbar": false,
-        "decorations": false,
+        "decorations": true,
+        "devtools": false,
         "resizable": true,
         "center": true
       }
