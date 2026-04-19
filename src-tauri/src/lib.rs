@@ -451,20 +451,57 @@ fn load_config(path: &Path) -> AppConfig {
 }
 
 fn config_path() -> PathBuf {
-    if let Some(appdata) = env::var_os("APPDATA") {
-        return PathBuf::from(appdata)
-            .join("slapwindows")
-            .join("config.json");
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(appdata) = env::var_os("APPDATA") {
+            return PathBuf::from(appdata)
+                .join("slapwindows")
+                .join("config.json");
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        if let Some(config_home) = env::var_os("XDG_CONFIG_HOME") {
+            return PathBuf::from(config_home)
+                .join("slapwindows")
+                .join("config.json");
+        }
+        if let Some(home) = env::var_os("HOME") {
+            return PathBuf::from(home)
+                .join(".config")
+                .join("slapwindows")
+                .join("config.json");
+        }
     }
 
     PathBuf::from("slapwindows-config.json")
 }
 
 fn custom_sounds_path() -> PathBuf {
-    if let Some(appdata) = env::var_os("APPDATA") {
-        return PathBuf::from(appdata)
-            .join("slapwindows")
-            .join("sounds");
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(appdata) = env::var_os("APPDATA") {
+            return PathBuf::from(appdata)
+                .join("slapwindows")
+                .join("sounds");
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        if let Some(data_home) = env::var_os("XDG_DATA_HOME") {
+            return PathBuf::from(data_home)
+                .join("slapwindows")
+                .join("sounds");
+        }
+        if let Some(home) = env::var_os("HOME") {
+            return PathBuf::from(home)
+                .join(".local")
+                .join("share")
+                .join("slapwindows")
+                .join("sounds");
+        }
     }
 
     PathBuf::from("slapwindows-sounds")
